@@ -1,0 +1,157 @@
+import java.util.ArrayList;
+import java.util.List;
+
+class Customer {
+    private int customerId;
+    private String name;
+    private String address;
+
+    public Customer(int customerId, String name, String address) {
+        this.customerId = customerId;
+        this.name = name;
+        this.address = address;
+    }
+
+    public int getCustomerId() {
+        return customerId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+}
+
+class Meter {
+    private int meterId;
+    private int customerId;
+
+    public Meter(int meterId, int customerId) {
+        this.meterId = meterId;
+        this.customerId = customerId;
+    }
+
+    public int getMeterId() {
+        return meterId;
+    }
+
+    public int getCustomerId() {
+        return customerId;
+    }
+}
+
+class Reading {
+    private int meterId;
+    private String date;
+    private int reading;
+
+    public Reading(int meterId, String date, int reading) {
+        this.meterId = meterId;
+        this.date = date;
+        this.reading = reading;
+    }
+
+    public int getMeterId() {
+        return meterId;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public int getReading() {
+        return reading;
+    }
+}
+
+class Bill {
+    private int customerId;
+    private String period;
+    private double amount;
+
+    public Bill(int customerId, String period, double amount) {
+        this.customerId = customerId;
+        this.period = period;
+        this.amount = amount;
+    }
+
+    public int getCustomerId() {
+        return customerId;
+    }
+
+    public String getPeriod() {
+        return period;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+}
+
+class BillingSystem {
+    private List<Customer> customers;
+    private List<Meter> meters;
+    private List<Reading> readings;
+    private List<Bill> bills;
+
+    public BillingSystem() {
+        this.customers = new ArrayList<>();
+        this.meters = new ArrayList<>();
+        this.readings = new ArrayList<>();
+        this.bills = new ArrayList<>();
+    }
+
+    public void addCustomer(Customer customer) {
+        customers.add(customer);
+    }
+
+    public void addMeter(Meter meter) {
+        meters.add(meter);
+    }
+
+    public void addReading(Reading reading) {
+        readings.add(reading);
+    }
+
+    public Bill generateBill(int customerId, String startDate, String endDate, double tariffRate) {
+        List<Reading> customerReadings = new ArrayList<>();
+        for (Reading r : readings) {
+            if (r.getMeterId() == customerId && r.getDate().compareTo(startDate) >= 0 && r.getDate().compareTo(endDate) <= 0) {
+                customerReadings.add(r);
+            }
+        }
+        if (!customerReadings.isEmpty()) {
+            int usage = customerReadings.get(customerReadings.size() - 1).getReading() - customerReadings.get(0).getReading();
+            double amount = usage * tariffRate;
+            Bill bill = new Bill(customerId, startDate + " to " + endDate, amount);
+            bills.add(bill);
+            return bill;
+        }
+        return null;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        BillingSystem billingSystem = new BillingSystem();
+
+        // Adding customers and meters
+        billingSystem.addCustomer(new Customer(1, "John Doe", "123 Elm St"));
+        billingSystem.addMeter(new Meter(1, 1));
+
+        // Adding readings
+        billingSystem.addReading(new Reading(1, "2024-01-01", 100));
+        billingSystem.addReading(new Reading(1, "2024-02-01", 150));
+
+        // Generating a bill
+        Bill bill = billingSystem.generateBill(1, "2024-01-01", "2024-02-01", 0.10);
+        if (bill != null) {
+            System.out.println("Bill for customer 1: " + bill.getAmount() + " USD");
+        } else {
+            System.out.println("No bill generated.");
+        }
+    }
+}
